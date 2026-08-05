@@ -54,6 +54,10 @@ Team/Enterprise orgs with directory-management access can instead use
 The form's exact fields may differ; the table is what the manifests declare, so
 answers stay consistent with what the reviewer sees.
 
+A plugin living in a subdirectory is well supported: ~400 of the ~2,300 approved
+entries in the community catalog use a `git-subdir` source with a
+`plugins/<name>` path, which is exactly this layout.
+
 ### What reviewers will look at
 
 - The bundled MCP server (`https://api.namefi.io/mcp`) — it's a network egress point,

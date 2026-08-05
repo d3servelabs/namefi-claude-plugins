@@ -78,6 +78,11 @@ Serve `hosted/.claude-plugin/marketplace.json` at
 `https://namefi.io/.claude-plugin/marketplace.json` (same drop-a-static-file move
 as `.well-known/mcp/servers.json`). Content-type `application/json`.
 
+The path is arbitrary — users type the full URL, and the `.claude-plugin/`
+convention only matters for git-based marketplaces. If your host or CDN blocks
+dot-directories (many allow `.well-known` as the sole exception), serve it at
+`https://namefi.io/marketplace.json` instead and publish that URL.
+
 A URL-based marketplace downloads **only** that one JSON file — no repo clone — so
 its plugin entry can't use a relative `./plugins/namefi` path. That's why the
 hosted copy uses a `git-subdir` source pointing back at this repo, while the root
