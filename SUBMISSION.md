@@ -58,6 +58,25 @@ A plugin living in a subdirectory is well supported: ~400 of the ~2,300 approved
 entries in the community catalog use a `git-subdir` source with a
 `plugins/<name>` path, which is exactly this layout.
 
+### Example use cases
+
+One-liners a user types; each maps to tools the plugin exposes.
+
+| Prompt | What it exercises |
+| --- | --- |
+| "Is `acme-robotics.com` available and what does it cost?" | `checkAvailability` — price, registrar, duration bounds |
+| "Find me a short .com for an AI invoicing startup" | `getSuggestions` |
+| "Check these five names at once: a.com, b.io, ..." | `checkBulkAvailability` |
+| "Register `acme-robotics.com` for 2 years" | confirm → `registerDomain` → poll `getOrder` |
+| "Buy it with USDC instead of a card" | `registerDomainX402` |
+| "Just give me a cart link, I'll check out myself" | `https://namefi.io/cart/add-from-url?add_to_cart=…` |
+| "What domains do I own?" | `getUserDomains` |
+| "Point `acme-robotics.com` at 76.76.21.21" | `getDnsRecords` → `createDnsRecord` |
+| "Move all my MX records to Google Workspace" | `getDnsRecords` → `batchUpdateDnsRecords` |
+| "Turn on auto-renew for everything I own" | `getUserDomains` → `toggleAutoRenew` |
+| "Park this domain and set up forwarding to my main site" | `toggleDomainParking`, `toggleForwarding` |
+| "Find buyers for the domains I'm sitting on and draft outreach" | `startOutboundRun` → `listOutboundLeads` → `prepareOutboundOutreach` |
+
 ### What reviewers will look at
 
 - The bundled MCP server (`https://api.namefi.io/mcp`) — it's a network egress point,
