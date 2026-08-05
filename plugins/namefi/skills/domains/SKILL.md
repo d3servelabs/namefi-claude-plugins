@@ -25,12 +25,18 @@ Don't retry a failing tool more than once before surfacing the auth step to the 
 
 ## Registration flow
 
-1. Check availability first — never register a name the user hasn't seen priced.
-2. Confirm the exact name and duration with the user before submitting an order.
-   Registration spends real money and is not reversible.
-3. Register (`normalizedDomainName`, `durationInYears` 1–10, optional NFT-receiving
-   wallet address).
-4. Poll the order until it reaches a terminal state; report the order URL
+1. If the user is still choosing a name, use the suggestions tool — don't guess
+   candidates and check them one at a time.
+2. Check availability first — never register a name the user hasn't seen priced.
+   The response carries the price, registrar, and the valid duration range; use
+   that range rather than assuming one.
+3. Confirm the exact name, duration, and price with the user before submitting an
+   order. Registration spends real money and is not reversible.
+4. Register (`normalizedDomainName`, `durationInYears`, optional NFT-receiving
+   wallet address). Alternative payment paths exist — USDC via x402, MPP, and a
+   trial registration for eligible domains — so offer them if the user can't or
+   won't pay by card.
+5. Poll the order until it reaches a terminal state; report the order URL
    (`https://namefi.io/orders/<orderId>`).
 
 ### Hand off to a human instead
