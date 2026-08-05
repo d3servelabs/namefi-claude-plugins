@@ -60,22 +60,23 @@ entries in the community catalog use a `git-subdir` source with a
 
 ### Example use cases
 
-One-liners a user types; each maps to tools the plugin exposes.
+Example 1: check if a domain you want like `acme-robotics.com` is available and what it costs.
 
-| Prompt | What it exercises |
-| --- | --- |
-| "Is `acme-robotics.com` available and what does it cost?" | `checkAvailability` — price, registrar, duration bounds |
-| "Find me a short .com for an AI invoicing startup" | `getSuggestions` |
-| "Check these five names at once: a.com, b.io, ..." | `checkBulkAvailability` |
-| "Register `acme-robotics.com` for 2 years" | confirm → `registerDomain` → poll `getOrder` |
-| "Buy it with USDC instead of a card" | `registerDomainX402` |
-| "Just give me a cart link, I'll check out myself" | `https://namefi.io/cart/add-from-url?add_to_cart=…` |
-| "What domains do I own?" | `getUserDomains` |
-| "Point `acme-robotics.com` at 76.76.21.21" | `getDnsRecords` → `createDnsRecord` |
-| "Move all my MX records to Google Workspace" | `getDnsRecords` → `batchUpdateDnsRecords` |
-| "Turn on auto-renew for everything I own" | `getUserDomains` → `toggleAutoRenew` |
-| "Park this domain and set up forwarding to my main site" | `toggleDomainParking`, `toggleForwarding` |
-| "Find buyers for the domains I'm sitting on and draft outreach" | `startOutboundRun` → `listOutboundLeads` → `prepareOutboundOutreach` |
+Example 2: brainstorm names — "find me a short .com for an AI invoicing startup" — and check the whole shortlist at once.
+
+Example 3: register `acme-robotics.com` for 2 years and watch the order through to completion.
+
+Example 4: pay in USDC instead of by card, or grab a cart link and check out yourself in the browser.
+
+Example 5: list the domains you already own and turn on auto-renew across all of them.
+
+Example 6: point `acme-robotics.com` at your server — "add an A record for 76.76.21.21".
+
+Example 7: migrate email — "move all my MX records over to Google Workspace" — in one batch instead of record by record.
+
+Example 8: park a domain you're not using yet and forward it to your main site.
+
+Example 9: find buyers for the domains you're sitting on and draft the outreach emails.
 
 ### What reviewers will look at
 
