@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
+  "name": "namefi",
+  "displayName": "Namefi",
+  "version": "1.0.0",
+  "description": "Search, register, and manage domains (and their DNS) through the Namefi API, via the hosted Namefi MCP server.",
+  "author": {
+    "name": "Namefi",
+    "url": "https://namefi.io"
+  },
+  "homepage": "https://namefi.io",
+  "repository": "https://github.com/d3servelabs/namefi-claude-plugins",
+  "license": "MIT",
+  "keywords": ["domains", "dns", "domain-registration", "namefi", "web3", "mcp"]
+}

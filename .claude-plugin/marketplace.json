@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
+  "name": "namefi",
+  "description": "Namefi plugins for Claude Code",
+  "owner": {
+    "name": "Namefi",
+    "url": "https://namefi.io"
+  },
+  "plugins": [
+    {
+      "name": "namefi",
+      "source": "./plugins/namefi",
+      "displayName": "Namefi",
+      "description": "Search, register, and manage domains (and their DNS) through the Namefi API, via the hosted Namefi MCP server.",
+      "category": "productivity",
+      "keywords": ["domains", "dns", "domain-registration", "namefi", "web3", "mcp"]
+    }
+  ]
+}
