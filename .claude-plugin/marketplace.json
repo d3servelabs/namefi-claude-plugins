@@ -12,6 +12,11 @@
       "source": "./plugins/namefi",
       "displayName": "Namefi",
       "description": "Search, register, and manage domains (and their DNS) through the Namefi API, via the hosted Namefi MCP server.",
+      "author": {
+        "name": "Namefi",
+        "url": "https://namefi.io"
+      },
+      "homepage": "https://namefi.io",
       "category": "productivity",
       "keywords": ["domains", "dns", "domain-registration", "namefi", "web3", "mcp"]
     }
