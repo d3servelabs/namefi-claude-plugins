@@ -3,7 +3,7 @@
   "name": "namefi",
   "displayName": "Namefi",
   "version": "1.0.0",
-  "description": "Search, register, and manage domains (and their DNS) through the Namefi API, via the hosted Namefi MCP server.",
+  "description": "Search, register, and manage domains and their DNS through the Namefi API (via the hosted Namefi MCP server), plus guided workflows for pointing a domain at a machine with no static IP (dynamic DNS, NAT port forwarding) and serving it over real HTTPS behind Caddy or Traefik.",
   "author": {
     "name": "Namefi",
     "url": "https://namefi.io"
@@ -11,5 +11,5 @@
   "homepage": "https://namefi.io",
   "repository": "https://github.com/d3servelabs/namefi-claude-plugins",
   "license": "MIT",
-  "keywords": ["domains", "dns", "domain-registration", "namefi", "web3", "mcp"]
+  "keywords": ["domains", "dns", "domain-registration", "namefi", "web3", "mcp", "dynamic-dns", "dyndns", "nat", "port-forwarding", "https", "reverse-proxy", "caddy", "traefik"]
 }
