@@ -7,14 +7,37 @@ description: >-
   dynamic DNS, point a Namefi domain at this machine, or check whether an ISP is
   CGNAT — and it is not yet clear whether they are on a VPS or behind home NAT,
   or which tool (namefi CLI, ddclient, none) they should use. This is the front
-  door that diagnoses the situation and hands off to the right sub-skill.
+  door that diagnoses the situation and hands off to the right sub-skill. Takes
+  an optional mode argument — simple (default; pick defaults from detection and
+  present one plan to accept or modify) or advanced (confirm each decision
+  individually).
 ---
 # Expose a Local Service on a Real Hostname — Router Skill
 
 This skill **diagnoses and routes**. It contains no configuration files and no
-CLI walkthroughs; every one of those lives in a sub-skill. Diagnose → confirm
-with the user → hand off. If you find yourself pasting a `ddclient.conf` or a
-`Caddyfile` here, you are in the wrong skill.
+CLI walkthroughs; every one of those lives in a sub-skill. Detect → decide
+defaults → present one plan → hand off. If you find yourself pasting a
+`ddclient.conf` or a `Caddyfile` here, you are in the wrong skill.
+
+## Modes — `simple` (default) and `advanced`
+
+The whole family takes one optional argument: `/namefi-dyndns simple` (also the
+default when no argument is given) or `/namefi-dyndns advanced`. Sub-skills
+accept the same argument, and a hand-off keeps the mode it started with.
+
+- **`simple`** — run the detection sweep, fill every choice from the defaults
+  table below, and present **one consolidated plan**: numbered lines, each
+  stating the choice *and the detected fact that drove it*. Then exactly one
+  prompt — *"accept, or name a line to change."* Ask nothing else unless a hard
+  blocker (no domain owned, carrier NAT with no IPv6, a credential secret only
+  the user holds) makes a defaulted plan impossible; list blockers above the
+  plan, never as questions scattered through the flow.
+- **`advanced`** — same detection, but stop at each decision point (route,
+  hostname, ports, HTTPS, proxy, persistence), show the options with the default
+  marked *(recommended)*, and let the user pick before moving on.
+
+In both modes: **never ask what detection already answered.** A question whose
+answer is sitting in `command -v` or `namefi dyndns check` output is noise.
 
 **Before promising anything inbound**, read
 [`references/inbound-reachability.md`](references/inbound-reachability.md) — the
@@ -143,10 +166,43 @@ nothing about the outside); one that **times out** is more likely a genuinely
 closed port or a host firewall. Locally, reach the service by its LAN address and
 internal port instead.
 
-## Present findings, then route
+## Defaults — decided by detection, not by asking
 
-Summarize in three or four lines — topology, carrier-NAT yes/no, tooling found,
-domain present — ask the user to confirm, then state the chosen route and why.
+Simple mode fills the plan from this table; advanced mode presents the same rows
+as marked recommendations.
+
+| Decision | Default rule (evidence → choice) |
+|---|---|
+| Route / tool | `namefi` CLI installed → `namefi-dyndns-with-cli`. Else `ddclient` installed → `namefi-dyndns-with-ddclient`. Neither → the plan proposes **installing the namefi CLI** (one plan line the user can veto); `namefi-dyndns-without-tooling` is the fallback when installing anything is off the table. |
+| Domain | Exactly one Namefi domain owned → use it. Several → propose the most recently registered and name the alternatives on that plan line. None → hard blocker, surfaced above the plan. |
+| Hostname | A service-named label on the chosen domain (`app.`, `demo.`, the project's name). |
+| Ports | Probe, don't guess. VPS with 80/443 free, or a NAT router that **grants** 80+443 mappings → use 80/443. Router refuses them (`UPnP error 501` is the classic) → first granted high port, plain HTTP — probe `18080`, then `32400` (skip `8443` for plain HTTP: it conventionally implies TLS). |
+| HTTPS | 80 **and** 443 confirmed reachable → **HTTPS is in the plan; do not ask** (hand off to `namefi-https-and-routing`). Only a high port reachable → HTTPS is *not* in the default plan; say why (HTTP-01 and TLS-ALPN-01 are defined on 80/443) and offer DNS-01 as the opt-in line. |
+| Reverse proxy | `docker` present → Caddy in a container. Traefik **only** when a labeled compose fleet or a running Traefik already exists. No docker → the native `caddy` binary. |
+| Persistence | Anything meant to outlive this session → a supervisor (systemd on Linux, launchd on macOS) is in the plan by default. |
+| Verification | Always in the plan: `dig` plus an **external**, control-tested check — never an inside-the-LAN test. |
+| Carrier NAT | Detected → the normal plan is impossible. The alternatives (IPv6-only if available, else a tunnel) *are* the plan. |
+
+## Present the plan, then route
+
+Open with the detected facts, one line each, then the plan. Every plan line is a
+choice **plus its evidence**:
+
+```
+Detected: NAT homelab · no carrier NAT · namefi CLI + docker · you own example.com
+
+Plan (defaults — reply "go", or name a line to change):
+1. Route     namefi CLI daemon — already installed; opens the NAT mapping itself
+2. Hostname  app.example.com — your only Namefi domain
+3. Ports     80 + 443 — the router granted both mappings on probe
+4. HTTPS     yes — Caddy in docker (docker found), automatic Let's Encrypt
+5. Service   reverse_proxy → 127.0.0.1:3000 — the app found listening
+6. Verify    dig + external checker (control-tested), then hand you both URLs
+```
+
+In simple mode that block is the **only** confirmation. In advanced mode, walk
+the same lines one at a time. Then hand off to the sub-skill with the accepted
+plan and the mode.
 
 **Whenever the topology is NAT (not a VPS), every result you report carries two
 URLs, as the default:**
@@ -168,24 +224,13 @@ one URL is correct everywhere; the `local:` line is noise there.
 |---|---|---|
 | VPS | `namefi` CLI | `namefi-dyndns-with-cli` |
 | VPS | `ddclient` | `namefi-dyndns-with-ddclient` |
-| VPS | none | `namefi-dyndns-without-tooling` (or install the CLI) |
+| VPS | none | Default: propose installing the CLI → `namefi-dyndns-with-cli`; `namefi-dyndns-without-tooling` when installing is off the table |
 | Homelab (NAT) | `namefi` CLI | `namefi-dyndns-with-cli` — it also opens the NAT mapping |
 | Homelab (NAT) | `ddclient` | `namefi-dyndns-with-ddclient` + forward ports manually |
-| Homelab (NAT) | none | `namefi-dyndns-without-tooling` + forward ports manually |
+| Homelab (NAT) | none | Default: propose installing the CLI → `namefi-dyndns-with-cli` (it opens the mapping too); `namefi-dyndns-without-tooling` + forward ports manually when installing is off the table |
 | Any | Carrier NAT (RFC6598 **or** private router WAN) | No port forwarding path. IPv6/AAAA, or a tunnel. |
 
 **Follow-up rule:** once the hostname resolves, hand off to
-`namefi-https-and-routing` whenever the user wants a browser-trusted
-`https://name/` URL, several apps behind one IP, or anything beyond a bare
-`http://ip:port`. It is a companion, never an alternative.
-
-## When the user has no preference
-
-Recommend in this order:
-
-1. **`namefi-dyndns-with-cli`** — easiest; one daemon, and `--map` handles NAT
-   port forwarding for you. Cost: installing the CLI.
-2. **`namefi-dyndns-with-ddclient`** — durable and standard, packaged everywhere.
-   Cost: you forward router ports yourself.
-3. **`namefi-dyndns-without-tooling`** — nothing to install, agent-driven or a
-   cron/curl script. Cost: the most manual and the easiest to let drift.
+`namefi-https-and-routing` whenever HTTPS is in the plan (80+443 reachable puts
+it there by default), the user wants a browser-trusted `https://name/` URL, or
+several apps share one IP. It is a companion, never an alternative.

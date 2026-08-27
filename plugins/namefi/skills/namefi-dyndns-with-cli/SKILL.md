@@ -18,6 +18,33 @@ address, and stays correct when that address changes. TLS/reverse proxy is a
 separate concern — see the companion skill `namefi-https-and-routing`
 (Traefik/Caddy).
 
+## Plan first — `simple` (default) and `advanced`
+
+This skill takes the family's mode argument (`simple`, the default, or
+`advanced`) and keeps the mode of the hand-off that brought you here. In
+**simple** mode: run the detection this skill already prescribes, fill every
+choice from the defaults below, and present **one numbered plan** — each line a
+choice plus the detected fact behind it — with a single *"accept, or name a
+line to change"* prompt. In **advanced** mode, stop at each decision and let
+the user pick, the default marked *(recommended)*. Never ask what `command -v`
+or a probe already answered. The family-wide defaults table lives in
+[`../namefi-dyndns/SKILL.md`](../namefi-dyndns/SKILL.md).
+
+Defaults this skill owns:
+
+- **Credential** — a scoped dyndns credential, never an account login (§2). Its
+  secret is the one thing only the user can supply — a blocker to surface, not
+  a mid-flow question.
+- **Ports** — probe before planning (§3): the router grants 80+443 → map both;
+  refuses them (`501`) → first granted high port, plain HTTP — probe `18080`,
+  then `32400` (`8443` only when it will actually serve TLS; §3 explains why).
+  On a VPS, no `--map` at all.
+- **HTTPS** — 80+443 both granted (or a VPS with both free) → the plan includes
+  the `namefi-https-and-routing` hand-off without asking. Only a high port →
+  it does not, and the plan line says why (HTTP-01/TLS-ALPN-01 need 80/443).
+- **Persistence** — anything meant to stay up gets the systemd/launchd service
+  (§2 step 4) in the plan by default; a one-off demo gets the bare daemon.
+
 ## 0. Install and log in
 
 ```bash

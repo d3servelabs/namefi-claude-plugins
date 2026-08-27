@@ -19,6 +19,31 @@ Ground truth for the protocol: `apps/backend/src/lib/ddns/README.md` and
 `apps/backend/src/routers/ddns.ts`. TLS and hostname-based routing are a
 separate concern — hand off to `namefi-https-and-routing`.
 
+## Plan first — `simple` (default) and `advanced`
+
+This skill takes the family's mode argument (`simple`, the default, or
+`advanced`) and keeps the mode of the hand-off that brought you here. In
+**simple** mode: run the detection this skill already prescribes, fill every
+choice from the defaults below, and present **one numbered plan** — each line a
+choice plus the detected fact behind it — with a single *"accept, or name a
+line to change"* prompt. In **advanced** mode, stop at each decision and let
+the user pick, the default marked *(recommended)*. Never ask what `command -v`
+or a probe already answered. The family-wide defaults table lives in
+[`../namefi-dyndns/SKILL.md`](../namefi-dyndns/SKILL.md).
+
+Defaults this skill owns:
+
+- **Config** — `usev4=webv4, webv4=ipify-ipv4`; add the v6 lines only when
+  detection shows a routable global IPv6 address (§3's template).
+- **Runner** — systemd unit on Linux, `brew services` on macOS — pick by the OS
+  you are on, don't ask.
+- **Credential** — the scoped dyndns secret is the one user-supplied item;
+  surface it as a blocker above the plan.
+- **Ports / HTTPS** — same probe-driven rules as the family table: router
+  grants 80+443 → forward both and put the `namefi-https-and-routing` hand-off
+  in the plan without asking; refuses them → a granted high port, plain HTTP,
+  and the plan says why HTTPS is out.
+
 ## 0. Choose this path (or don't)
 
 | Situation | Use |
@@ -175,12 +200,13 @@ Offer to help rather than leaving it to the user:
   # path, so `go install` must use it until that is updated (verified 2026-08-24):
   #   go install github.com/d3servelabs/natprobe/cmd/natprobe@latest
   natprobe check                    # what the gateway supports, and why things failed
-  natprobe map --port 8080/tcp      # request a forward
+  natprobe map --port 18080/tcp     # request a forward
   ```
 
 - **Manual** — tell the user exactly what to click: router admin UI (usually
   `http://192.168.1.1`) → *Port Forwarding* / *Virtual Server* / *NAT* → add a
-  rule with external port (80/443, or 8080 if the ISP blocks 80), protocol TCP,
+  rule with external port (80/443, or a high port — `18080`/`32400` — if the
+  ISP blocks 80), protocol TCP,
   internal IP = this machine's LAN address, internal port = the service port.
   Give the machine a **DHCP reservation / static lease** in the same UI, or the
   forward breaks the next time the lease changes.

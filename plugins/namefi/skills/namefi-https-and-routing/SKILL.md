@@ -17,6 +17,30 @@ user's current IP (`namefi-dyndns-with-cli`, `namefi-dyndns-with-ddclient`,
 and route to the right local service. Do not duplicate their content — if the
 name does not resolve to the right IP yet, send the user there first.
 
+## Plan first — `simple` (default) and `advanced`
+
+This skill takes the family's mode argument (`simple`, the default, or
+`advanced`) and keeps the mode of the hand-off that brought you here. When a
+dyndns skill hands off with an **accepted plan**, its HTTPS lines are already
+accepted — don't re-confirm them; speak up only if detection here contradicts
+the plan (say, 443 stopped being reachable). Invoked directly in simple mode:
+detect, fill the defaults below, present one numbered plan (choice + evidence
+per line), one *"accept, or name a line to change"* prompt. Advanced mode stops
+at each decision with the default marked *(recommended)*. The family-wide
+defaults table lives in [`../namefi-dyndns/SKILL.md`](../namefi-dyndns/SKILL.md).
+
+Defaults this skill owns:
+
+- **Proxy** — Caddy. Traefik only when detection finds a labeled compose fleet
+  or a Traefik already running (the section below has the full reasoning).
+- **Runtime** — `docker` present → the container variant; absent → the native
+  binary. Pick by `command -v docker`, don't ask.
+- **Challenge** — 80 and 443 reachable from outside → HTTP-01 (Caddy adds its
+  TLS-ALPN fallback itself); that is the default, not a question. Neither
+  reachable → DNS-01 is the only path — present it with the honest Namefi
+  caveats below.
+- **Staging first** — always a plan line; the production switch is its own step.
+
 ## Pick one: Caddy by default
 
 **Default to Caddy 2.x.** Automatic HTTPS is on by default, the config is a few
