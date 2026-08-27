@@ -18,6 +18,32 @@ Ground truth: `apps/backend/src/lib/ddns/README.md`,
 `apps/backend/src/routers/ddns.ts`. TLS and hostname routing are separate — hand
 off to `namefi-https-and-routing`.
 
+## Plan first — `simple` (default) and `advanced`
+
+This skill takes the family's mode argument (`simple`, the default, or
+`advanced`) and keeps the mode of the hand-off that brought you here. In
+**simple** mode: run the detection this skill already prescribes, fill every
+choice from the defaults below, and present **one numbered plan** — each line a
+choice plus the detected fact behind it — with a single *"accept, or name a
+line to change"* prompt. In **advanced** mode, stop at each decision and let
+the user pick, the default marked *(recommended)*. Never ask what `command -v`
+or a probe already answered. The family-wide defaults table lives in
+[`../namefi-dyndns/SKILL.md`](../namefi-dyndns/SKILL.md).
+
+Defaults this skill owns:
+
+- **Approach** — §3 (`curl` + a timer) unless the user has *called* this a
+  throwaway demo, in which case §2 (agent-driven) — that's a fact from their
+  words, not a question to ask.
+- **Scheduler** — systemd timer on Linux, launchd on macOS, plain cron as the
+  fallback — pick by the OS you are on.
+- **Credential** — the scoped dyndns secret is the one user-supplied item;
+  surface it as a blocker above the plan.
+- **Ports / HTTPS** — same probe-driven rules as the family table: router
+  grants 80+443 → forward both and put the `namefi-https-and-routing` hand-off
+  in the plan without asking; refuses them → a granted high port, plain HTTP,
+  and the plan says why HTTPS is out.
+
 ## 0. Choose the approach
 
 | Situation | Use |
